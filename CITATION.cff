@@ -1,0 +1,15 @@
+cff-version: 1.2.0
+message: "If you use this software, please cite it as below."
+title: "mqmft-transfer-history: Searchable transfer history and self service lookup for IBM MQ Managed File Transfer"
+authors:
+  - family-names: Katragadda
+    given-names: Prudhvi Raj
+version: 0.1.0
+date-released: 2026-11-16
+license: Apache-2.0
+repository-code: "https://github.com/prudhvi57/mqmft-transfer-history"
+keywords:
+  - IBM MQ
+  - Managed File Transfer
+  - transfer history
+  - B2B integration

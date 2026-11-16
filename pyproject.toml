@@ -1,0 +1,38 @@
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "mqmft-transfer-history"
+version = "0.1.0"
+description = "Searchable transfer history and self service lookup for IBM MQ Managed File Transfer"
+readme = "README.md"
+requires-python = ">=3.9"
+license = {text = "Apache-2.0"}
+authors = [{name = "Prudhvi Raj Katragadda"}]
+keywords = ["IBM MQ", "Managed File Transfer", "MFT", "MQ MFT", "transfer log", "B2B", "audit"]
+classifiers = [
+  "Programming Language :: Python :: 3",
+  "License :: OSI Approved :: Apache Software License",
+  "Topic :: System :: Monitoring",
+  "Topic :: System :: Archiving",
+]
+
+[project.optional-dependencies]
+mq = ["pymqi>=1.12"]
+dev = ["pytest>=7"]
+
+[project.scripts]
+mfthistory = "mfthistory.cli:main"
+
+[project.urls]
+Homepage = "https://github.com/prudhvi57/mqmft-transfer-history"
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.setuptools.package-data]
+mfthistory = ["schema.sql", "web/index.html"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]

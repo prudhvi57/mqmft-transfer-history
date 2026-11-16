@@ -1,0 +1,181 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Transfer History</title>
+<style>
+  :root { --bg:#f6f7f9; --card:#fff; --ink:#1d2430; --muted:#5d6878; --line:#dde1e7; --accent:#0f62fe;
+          --ok:#198038; --bad:#da1e28; --warn:#b28600; --info:#5d6878; }
+  @media (prefers-color-scheme: dark) { :root { --bg:#14171c; --card:#1d2128; --ink:#e7eaee; --muted:#9aa4b2;
+          --line:#2e343d; --accent:#78a9ff; --ok:#42be65; --bad:#ff8389; --warn:#f1c21b; --info:#9aa4b2; } }
+  * { box-sizing: border-box; }
+  body { margin:0; font:14px/1.45 system-ui, -apple-system, "Segoe UI", sans-serif; background:var(--bg); color:var(--ink); }
+  header { padding:16px 20px; border-bottom:1px solid var(--line); background:var(--card); display:flex; gap:12px; align-items:center; flex-wrap:wrap; }
+  header h1 { font-size:18px; margin:0; flex:1; }
+  main { max-width:1200px; margin:0 auto; padding:16px; }
+  .card { background:var(--card); border:1px solid var(--line); border-radius:8px; padding:14px; margin-bottom:14px; }
+  form { display:grid; grid-template-columns:repeat(auto-fit, minmax(170px, 1fr)); gap:10px; align-items:end; }
+  label { display:flex; flex-direction:column; gap:4px; font-size:12px; color:var(--muted); }
+  input, select, button { font:inherit; padding:7px 9px; border:1px solid var(--line); border-radius:6px; background:var(--bg); color:var(--ink); }
+  button { background:var(--accent); color:#fff; border:none; cursor:pointer; }
+  button.ghost { background:transparent; color:var(--accent); border:1px solid var(--line); }
+  .tiles { display:grid; grid-template-columns:repeat(auto-fit, minmax(140px, 1fr)); gap:10px; }
+  .tile b { display:block; font-size:22px; }
+  .tile span { color:var(--muted); font-size:12px; }
+  table { width:100%; border-collapse:collapse; }
+  th, td { text-align:left; padding:7px 8px; border-bottom:1px solid var(--line); vertical-align:top; }
+  th { font-size:12px; color:var(--muted); font-weight:600; }
+  tr.row { cursor:pointer; }
+  tr.row:hover { background:var(--bg); }
+  .pill { display:inline-block; padding:1px 8px; border-radius:10px; font-size:12px; border:1px solid currentColor; }
+  .success { color:var(--ok); } .failed { color:var(--bad); } .partial, .cancelled { color:var(--warn); }
+  .in_progress, .unknown { color:var(--info); }
+  .mono { font-family:ui-monospace, Menlo, Consolas, monospace; font-size:12px; word-break:break-all; }
+  .muted { color:var(--muted); }
+  .wrap { overflow-x:auto; }
+  dialog { border:1px solid var(--line); border-radius:8px; background:var(--card); color:var(--ink); width:min(900px, 95vw); }
+  #pager { display:flex; gap:8px; align-items:center; justify-content:flex-end; margin-top:10px; }
+</style>
+</head>
+<body>
+<header>
+  <h1>MQ MFT transfer history</h1>
+  <span id="who" class="muted"></span>
+  <input id="token" type="password" placeholder="Access token" autocomplete="off" style="width:220px">
+  <button id="useToken" class="ghost">Use token</button>
+</header>
+<main>
+  <div class="card">
+    <form id="search">
+      <label>File name <input name="file" placeholder="inv_20261116* or part of a name"></label>
+      <label>Agent <select name="agent"><option value="">Any</option></select></label>
+      <label>Status <select name="status">
+        <option value="">Any</option><option>success</option><option>failed</option><option>partial</option>
+        <option>cancelled</option><option value="in_progress">in progress</option></select></label>
+      <label>Job <input name="job" placeholder="ORDERS"></label>
+      <label>From <input name="since" type="datetime-local"></label>
+      <label>To <input name="until" type="datetime-local"></label>
+      <label>Transfer ID <input name="transfer_id" class="mono"></label>
+      <button type="submit">Search</button>
+    </form>
+  </div>
+  <div class="card tiles" id="tiles"></div>
+  <div class="card">
+    <div style="display:flex; justify-content:space-between; align-items:center; gap:10px; flex-wrap:wrap">
+      <b id="count">Results</b>
+      <a id="csv" href="#" class="muted">Download CSV</a>
+    </div>
+    <div class="wrap"><table>
+      <thead><tr><th>Started (local)</th><th>Status</th><th>From</th><th>To</th><th>Job</th><th>Files</th><th>Size</th></tr></thead>
+      <tbody id="rows"></tbody>
+    </table></div>
+    <div id="pager"><button class="ghost" id="prev">Previous</button><span id="page" class="muted"></span><button class="ghost" id="next">Next</button></div>
+  </div>
+</main>
+<dialog id="detail"><div id="detailBody"></div><p><button id="closeDetail" class="ghost">Close</button></p></dialog>
+<script>
+(() => {
+  const $ = (s) => document.querySelector(s);
+  let token = ""; try { token = sessionStorage.getItem("mfth_token") || ""; } catch (e) {}
+  let offset = 0; const limit = 50;
+
+  function el(tag, attrs = {}, ...kids) {
+    const e = document.createElement(tag);
+    for (const [k, v] of Object.entries(attrs)) { if (k === "class") e.className = v; else e.setAttribute(k, v); }
+    for (const k of kids) e.append(k instanceof Node ? k : document.createTextNode(k ?? ""));
+    return e;
+  }
+  const fmtTime = (s) => s ? new Date(s).toLocaleString() : "";
+  const fmtBytes = (n) => { if (n == null) return ""; const u = ["B","KB","MB","GB","TB"]; let i = 0; while (n >= 1024 && i < u.length - 1) { n /= 1024; i++; } return n.toFixed(i ? 1 : 0) + " " + u[i]; };
+  const pill = (s) => el("span", {class: "pill " + (s || "unknown")}, (s || "unknown").replace("_", " "));
+
+  async function api(path) {
+    const r = await fetch(path, {headers: token ? {Authorization: "Bearer " + token} : {}});
+    if (r.status === 401) throw new Error("Please enter a valid access token.");
+    if (!r.ok) throw new Error((await r.json()).error || r.statusText);
+    return r.json();
+  }
+  function params() {
+    const p = new URLSearchParams();
+    for (const [k, v] of new FormData($("#search"))) {
+      if (!v) continue;
+      p.set(k, (k === "since" || k === "until") ? new Date(v).toISOString() : v);
+    }
+    return p;
+  }
+  async function loadMe() {
+    try {
+      const me = await api("/api/me");
+      $("#who").textContent = "Signed in as " + me.name + (me.agents === "*" ? " (all agents)" : " (" + me.agents.length + " agents)");
+      const sel = $("select[name=agent]");
+      sel.length = 1;
+      for (const a of (await api("/api/agents")).agents) sel.append(el("option", {}, a));
+      return true;
+    } catch (e) { $("#who").textContent = e.message; return false; }
+  }
+  async function loadTiles() {
+    const p = params(); const since = p.get("since") || new Date(Date.now() - 86400000).toISOString();
+    const [st, stuck] = await Promise.all([api("/api/stats?since=" + encodeURIComponent(since)), api("/api/stuck?minutes=60")]);
+    const t = $("#tiles"); t.replaceChildren();
+    const total = Object.values(st.by_status).reduce((a, b) => a + b, 0);
+    const add = (n, label, cls) => t.append(el("div", {class: "tile"}, el("b", {class: cls || ""}, String(n)), el("span", {}, label)));
+    add(total, "transfers in range"); add(st.by_status.success || 0, "succeeded", "success");
+    add(st.by_status.failed || 0, "failed", "failed"); add((st.by_status.partial || 0) + (st.by_status.cancelled || 0), "partial or cancelled", "partial");
+    add(stuck.results.length, "started, not finished after 60 min", stuck.results.length ? "failed" : "");
+  }
+  async function search() {
+    const p = params(); p.set("limit", limit); p.set("offset", offset);
+    $("#csv").href = "#"; $("#csv").dataset.q = p.toString();
+    const res = await api("/api/transfers?" + p);
+    $("#count").textContent = res.total.toLocaleString() + " transfers";
+    $("#page").textContent = res.total ? (offset + 1) + " to " + Math.min(offset + limit, res.total) : "";
+    $("#prev").disabled = offset === 0; $("#next").disabled = offset + limit >= res.total;
+    const body = $("#rows"); body.replaceChildren();
+    for (const r of res.results) {
+      const tr = el("tr", {class: "row"}, el("td", {}, fmtTime(r.started_at)), el("td", {}, pill(r.status)),
+        el("td", {}, r.source_agent || ""), el("td", {}, r.destination_agent || ""), el("td", {}, r.job_name || ""),
+        el("td", {}, String(r.file_count ?? "")), el("td", {}, fmtBytes(r.total_bytes)));
+      tr.addEventListener("click", () => showDetail(r.transfer_id));
+      body.append(tr);
+    }
+    if (!res.results.length) body.append(el("tr", {}, el("td", {colspan: "7", class: "muted"}, "No transfers match.")));
+  }
+  async function showDetail(id) {
+    const d = await api("/api/transfers/" + encodeURIComponent(id));
+    const box = $("#detailBody"); box.replaceChildren();
+    box.append(el("h2", {}, "Transfer ", pill(d.status)), el("p", {class: "mono"}, d.transfer_id),
+      el("p", {}, d.source_agent + " (" + (d.source_qmgr || "") + ")  to  " + d.destination_agent + " (" + (d.destination_qmgr || "") + ")"),
+      el("p", {class: "muted"}, "Started " + fmtTime(d.started_at) + (d.completed_at ? ", ended " + fmtTime(d.completed_at) : ", not finished")),
+      d.supplement ? el("p", {class: "failed"}, d.supplement) : "");
+    const files = el("table", {}, el("thead", {}, el("tr", {}, el("th", {}, "Source file"), el("th", {}, "Destination"), el("th", {}, "Size"), el("th", {}, "Result"))));
+    const fb = el("tbody"); files.append(fb);
+    for (const it of d.items) fb.append(el("tr", {}, el("td", {class: "mono"}, it.source_file), el("td", {class: "mono"}, it.destination_file || ""),
+      el("td", {}, fmtBytes(it.source_size)), el("td", {}, it.result_code == null ? "" : (it.result_code === 0 ? "ok" : "rc " + it.result_code + (it.supplement ? ": " + it.supplement : "")))));
+    box.append(el("h3", {}, "Files"), el("div", {class: "wrap"}, files), el("h3", {}, "Messages received"));
+    const ul = el("ul"); for (const e of d.events) ul.append(el("li", {}, e.action + " at " + fmtTime(e.event_time)));
+    box.append(ul);
+    $("#detail").showModal();
+  }
+  async function downloadCsv(ev) {
+    ev.preventDefault();
+    const r = await fetch("/api/transfers.csv?" + ($("#csv").dataset.q || ""), {headers: token ? {Authorization: "Bearer " + token} : {}});
+    const url = URL.createObjectURL(await r.blob());
+    const a = el("a", {href: url, download: "transfers.csv"}); document.body.append(a); a.click(); a.remove(); URL.revokeObjectURL(url);
+  }
+  async function refresh() { try { await Promise.all([search(), loadTiles()]); } catch (e) { $("#count").textContent = e.message; } }
+
+  $("#search").addEventListener("submit", (e) => { e.preventDefault(); offset = 0; refresh(); });
+  $("#prev").addEventListener("click", () => { offset = Math.max(0, offset - limit); search(); });
+  $("#next").addEventListener("click", () => { offset += limit; search(); });
+  $("#closeDetail").addEventListener("click", () => $("#detail").close());
+  $("#csv").addEventListener("click", downloadCsv);
+  $("#useToken").addEventListener("click", async () => {
+    token = $("#token").value.trim(); try { sessionStorage.setItem("mfth_token", token); } catch (e) {}
+    $("#token").value = ""; if (await loadMe()) refresh();
+  });
+  loadMe().then((ok) => ok && refresh());
+})();
+</script>
+</body>
+</html>

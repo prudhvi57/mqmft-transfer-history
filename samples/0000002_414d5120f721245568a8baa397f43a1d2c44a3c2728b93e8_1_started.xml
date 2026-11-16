@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<transaction xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" version="6.00" ID="414d5120f721245568a8baa397f43a1d2c44a3c2728b93e8" agentRole="sourceAgent" xsi:noNamespaceSchemaLocation="TransferLog.xsd" xmlns="">
+  <action time="2026-11-16T01:46:36.740Z">started</action>
+  <sourceAgent agent="PARTNER_ZENITH_HEALTH" QMgr="QM_MFT_4"><systemInfo architecture="amd64" name="Linux" version="5.14"/></sourceAgent>
+  <destinationAgent agent="HUB_AGENT_23" QMgr="QM_MFT_4"/>
+  <originator><hostName>mfthost01.example.internal</hostName><userID>mftadm</userID></originator>
+  <job><name>PAYROLL_ZENITH_HEALTH</name></job>
+  <transferSet startTime="2026-11-16T01:46:36.740Z" total="1">
+    <item mode="binary"><source disposition="leave" type="file"><file size="2318066" last-modified="2026-11-16T01:46:36.740Z">/mft/in/payroll/payroll_20261116.dat</file><checksum method="MD5">6e51c6b36d6f3c9f0ac9056a4ad683cb</checksum></source><destination type="file" exist="overwrite"><file size="2318066">/data/hub_agent_23/payroll/payroll_20261116.dat</file></destination></item>
+  </transferSet>
+</transaction>

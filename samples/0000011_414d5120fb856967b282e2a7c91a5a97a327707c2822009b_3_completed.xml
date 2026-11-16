@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<transaction xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" version="6.00" ID="414d5120fb856967b282e2a7c91a5a97a327707c2822009b" agentRole="sourceAgent" xsi:noNamespaceSchemaLocation="TransferLog.xsd" xmlns="">
+  <action time="2026-11-16T15:33:32.493Z">completed</action>
+  <sourceAgent agent="HUB_AGENT_23" QMgr="QM_MFT_4"><systemInfo architecture="amd64" name="Linux" version="5.14"/></sourceAgent>
+  <destinationAgent agent="PARTNER_BLUEWAVE_BANK" QMgr="QM_MFT_4"/>
+  <originator><hostName>mfthost04.example.internal</hostName><userID>mftadm</userID></originator>
+  <job><name>INVOICES_BLUEWAVE_BANK</name></job>
+  <status resultCode="0"></status>
+  <transferSet startTime="2026-11-16T15:33:32.493Z" total="1" bytesSent="52262">
+    <item mode="binary"><source disposition="leave" type="file"><file size="52262" last-modified="2026-11-16T15:33:32.493Z">/mft/out/invoices/inv810_20261116_030.edi</file><checksum method="MD5">7d53e5753dc98fa36a1009aecac22ae3</checksum></source><destination type="file" exist="overwrite"><file size="52262">/data/partner_bluewave_bank/invoices/inv810_20261116_030.edi</file></destination><status resultCode="0"></status></item>
+  </transferSet>
+</transaction>

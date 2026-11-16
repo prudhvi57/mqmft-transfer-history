@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<transaction xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" version="6.00" ID="414d51208589eaff309cad68386d070c415ed7e70cad1946" agentRole="sourceAgent" xsi:noNamespaceSchemaLocation="TransferLog.xsd" xmlns="">
+  <action time="2026-11-16T08:10:06.803Z">started</action>
+  <sourceAgent agent="HUB_AGENT_26" QMgr="QM_MFT_3"><systemInfo architecture="amd64" name="Linux" version="5.14"/></sourceAgent>
+  <destinationAgent agent="PARTNER_NORTHSTAR_FOODS" QMgr="QM_MFT_2"/>
+  <originator><hostName>mfthost01.example.internal</hostName><userID>mftadm</userID></originator>
+  <job><name>INVOICES_NORTHSTAR_FOODS</name></job>
+  <transferSet startTime="2026-11-16T08:10:06.803Z" total="1">
+    <item mode="binary"><source disposition="leave" type="file"><file size="114697" last-modified="2026-11-16T08:10:06.803Z">/mft/out/invoices/inv810_20261116_010.edi</file><checksum method="MD5">1fb6dfbdb0ae0755281220e087835b92</checksum></source><destination type="file" exist="overwrite"><file size="114697">/data/partner_northstar_foods/invoices/inv810_20261116_010.edi</file></destination></item>
+  </transferSet>
+</transaction>

@@ -1,0 +1,10 @@
+__pycache__/
+*.egg-info/
+*.db
+*.db-wal
+*.db-shm
+tokens.json
+sample-messages/
+.pytest_cache/
+build/
+dist/

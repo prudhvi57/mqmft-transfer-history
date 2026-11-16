@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<transaction xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" version="6.00" ID="414d51206c693030942b9dba03eeb9caf3cc6086ed95e6b0" agentRole="sourceAgent" xsi:noNamespaceSchemaLocation="TransferLog.xsd" xmlns="">
+  <action time="2026-11-16T14:20:57.456Z">started</action>
+  <sourceAgent agent="HUB_AGENT_10" QMgr="QM_MFT_3"><systemInfo architecture="amd64" name="Linux" version="5.14"/></sourceAgent>
+  <destinationAgent agent="PARTNER_NORTHSTAR_FOODS" QMgr="QM_MFT_2"/>
+  <originator><hostName>mfthost06.example.internal</hostName><userID>mftadm</userID></originator>
+  <job><name>PAYROLL_NORTHSTAR_FOODS</name></job>
+  <transferSet startTime="2026-11-16T14:20:57.456Z" total="4">
+    <item mode="binary"><source disposition="leave" type="file"><file size="4563750" last-modified="2026-11-16T14:20:57.456Z">/mft/out/payroll/payroll_20261116.dat</file><checksum method="MD5">394641a659d51782ed8ee0ca58f0d01b</checksum></source><destination type="file" exist="overwrite"><file size="4563750">/data/partner_northstar_foods/payroll/payroll_20261116.dat</file></destination></item>
+    <item mode="binary"><source disposition="leave" type="file"><file size="6865984" last-modified="2026-11-16T14:20:57.456Z">/mft/out/payroll/payroll_20261116.dat</file><checksum method="MD5">44488cc527f05ae77aff7da8712b5699</checksum></source><destination type="file" exist="overwrite"><file size="6865984">/data/partner_northstar_foods/payroll/payroll_20261116.dat</file></destination></item>
+    <item mode="binary"><source disposition="leave" type="file"><file size="7809588" last-modified="2026-11-16T14:20:57.456Z">/mft/out/payroll/payroll_20261116.dat</file><checksum method="MD5">9b5e23c548d61fcbc512838242e7cdc5</checksum></source><destination type="file" exist="overwrite"><file size="7809588">/data/partner_northstar_foods/payroll/payroll_20261116.dat</file></destination></item>
+    <item mode="binary"><source disposition="leave" type="file"><file size="4730217" last-modified="2026-11-16T14:20:57.456Z">/mft/out/payroll/payroll_20261116.dat</file><checksum method="MD5">e4f63dd3987c06e007865946898e5bfd</checksum></source><destination type="file" exist="overwrite"><file size="4730217">/data/partner_northstar_foods/payroll/payroll_20261116.dat</file></destination></item>
+  </transferSet>
+</transaction>

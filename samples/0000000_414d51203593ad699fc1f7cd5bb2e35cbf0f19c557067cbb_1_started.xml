@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<transaction xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" version="6.00" ID="414d51203593ad699fc1f7cd5bb2e35cbf0f19c557067cbb" agentRole="sourceAgent" xsi:noNamespaceSchemaLocation="TransferLog.xsd" xmlns="">
+  <action time="2026-11-15T22:33:01.175Z">started</action>
+  <sourceAgent agent="HUB_AGENT_04" QMgr="QM_MFT_1"><systemInfo architecture="amd64" name="Linux" version="5.14"/></sourceAgent>
+  <destinationAgent agent="PARTNER_RIVERSIDE_DC" QMgr="QM_MFT_2"/>
+  <originator><hostName>mfthost04.example.internal</hostName><userID>mftadm</userID></originator>
+  <job><name>ORDERS_RIVERSIDE_DC</name></job>
+  <transferSet startTime="2026-11-15T22:33:01.175Z" total="1">
+    <item mode="binary"><source disposition="leave" type="file"><file size="252592" last-modified="2026-11-15T22:33:01.175Z">/mft/out/orders/orders_20261115_000.xml</file><checksum method="MD5">c63f0cd0e873a0000c6d07ef7b77e90d</checksum></source><destination type="file" exist="overwrite"><file size="252592">/data/partner_riverside_dc/orders/orders_20261115_000.xml</file></destination></item>
+  </transferSet>
+</transaction>
